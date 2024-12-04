@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Periode;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class PeriodeController extends Controller
 {
@@ -30,10 +31,7 @@ class PeriodeController extends Controller
         $cekPeriode = Periode::where('bulan', $request->bulan)
             ->where('tahun', $request->tahun)->first();
         if ($cekPeriode) {
-            return response()->json([
-                'message' => 'Periode Telah ditambahkan sebelumnya',
-
-            ]);
+            throw ValidationException::withMessages(['message' => 'Periode ini sudah ditambahkan sebelumnya']);
         }
         $attr = $request->validate([
             'tahun' => 'required|integer|min:' . now()->format('Y'),

@@ -30,6 +30,5 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->hasGuru()->create();
         User::factory(10)->hasSiswa()->create();
         Kriteria::factory(10)->create();
-        Periode::factory(40)->create();
     }
 }

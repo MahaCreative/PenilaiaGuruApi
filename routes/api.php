@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PenilaianKepsekController;
 use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\SiswaController;
+use App\Models\PenilaianKepsek;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -53,7 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('create-data-periode', [PeriodeController::class, 'create']);
     Route::delete('delete-data-periode/{id}', [PeriodeController::class, 'delete']);
 
-    Route::get('get-guru-belum-dinilai', [PenilaianKepsekController::class, 'index']);
+    Route::get('get-guru-belum-dinilai/{id}', [PenilaianKepsekController::class, 'index']);
     Route::post('create-data-nilai-kepsek/{id}', [PenilaianKepsekController::class, 'create']);
+    Route::post('proses-penilaian-kepsek/{id}', [PenilaianKepsekController::class, 'proses_penilaian']);
+    Route::get('history-penilaian-kepsek/{id}', [PenilaianKepsekController::class, 'history_penilaian']);
     Route::get('get-data-nilai-kepsek/{id}', [PenilaianKepsekController::class, 'show']);
+    Route::get('rangking-sementara-penilaian-kepsek', [PenilaianKepsekController::class, 'rangking_sementara']);
 });

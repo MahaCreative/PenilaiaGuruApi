@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('normalisasi_penilaian_kepseks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('detail_penilaian_kepsek_id')->constrained('detail_penilaian_kepseks')->onDelete('cascade');
             $table->foreignId('periode_id')->constrained('periodes')->onDelete('cascade');
             $table->foreignId('kriteria_id')->constrained('kriterias')->onDelete('cascade');
             $table->foreignId('guru_id')->constrained('gurus')->onDelete('cascade');
