@@ -21,4 +21,9 @@ class Guru extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function detail_penilaian_siswa()
+    {
+        return $this->hasMany(DetailPenilaianSiswa::class);
+    }
 }

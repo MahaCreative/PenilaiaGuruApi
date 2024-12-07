@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('periode_id')->constrained('periodes')->onDelete('cascade');
             $table->foreignId('guru_id')->constrained('gurus')->onDelete('cascade');
-            $table->tinyInteger('rank');
-            $table->float('nilai_kepsek');
-            $table->float('nilai_siswa');
-            $table->float('skor_akhir');
+            $table->tinyInteger('rank'); // HAPUS NANTI
+            $table->float('nilai_kepsek')->default(0);
+            $table->float('nilai_siswa')->default(0);
+            $table->float('skor_akhir')->default(0);
             $table->timestamps();
         });
     }

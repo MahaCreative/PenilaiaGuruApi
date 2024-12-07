@@ -38,7 +38,7 @@ class GuruController extends Controller
     {
 
         $request->validate([
-            'nip' => 'required|numeric|min:6|unique:gurus,nip',
+            'nip' => 'required|numeric|digits:6|unique:gurus,nip',
             'nama' => 'required|string|min:4|max:60',
             'alamat' => 'required|min:6|max:50|string',
             'jenis_kelamin' => 'required',

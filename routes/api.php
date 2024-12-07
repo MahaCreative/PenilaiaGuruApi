@@ -5,6 +5,7 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PenilaianKepsekController;
+use App\Http\Controllers\PenilaianSiswaController;
 use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\SiswaController;
 use App\Models\PenilaianKepsek;
@@ -35,6 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('detail-guru/{nip}', [GuruController::class, 'show']);
     Route::put('update-guru/{nip}', [GuruController::class, 'update']);
 
+
+
     Route::get('get-data-kelas', [DataKelasController::class, 'index']);
     Route::get('show-daftar-siswa/{kelas}', [DataKelasController::class, 'show_siswa']);
     Route::post('create-data-kelas', [DataKelasController::class, 'create']);
@@ -58,6 +61,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('create-data-nilai-kepsek/{id}', [PenilaianKepsekController::class, 'create']);
     Route::post('proses-penilaian-kepsek/{id}', [PenilaianKepsekController::class, 'proses_penilaian']);
     Route::get('history-penilaian-kepsek/{id}', [PenilaianKepsekController::class, 'history_penilaian']);
+    Route::get('kepsek/history-penilaian-siswa/{id}', [PenilaianKepsekController::class, 'history_penilaian_siswa']);
     Route::get('get-data-nilai-kepsek/{id}', [PenilaianKepsekController::class, 'show']);
     Route::get('rangking-sementara-penilaian-kepsek', [PenilaianKepsekController::class, 'rangking_sementara']);
+    Route::get('selesaikan_penilaian/{id}', [PenilaianKepsekController::class, 'selesaikan_penilaian']);
+
+    // Penilaian Siswa
+    Route::get('create-penilaian-siswa/{id}', [PenilaianSiswaController::class, 'index']);
+    Route::post('store-data-nilai-siswa/{id}', [PenilaianSiswaController::class, 'store_nilai']);
+    Route::get('history-penilaian-siswa/{id}', [PenilaianSiswaController::class, 'history_penilaian']);
+    Route::post('proses-penilaian-siswa/{id}', [PenilaianSiswaController::class, 'proses_penilaian']);
+    Route::get('rangking-sementara-penilaian-siswa', [PenilaianSiswaController::class, 'rangking_sementara']);
 });

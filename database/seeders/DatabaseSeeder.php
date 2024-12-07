@@ -18,17 +18,23 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // \App\Models\User::factory(10)->create();
-        $this->call([
-            KelasSeeder::class,
-        ]);
+
         User::create([
             'name' => 'Kepala Sekolah',
             'nip' => '112233',
             'password' => bcrypt('password'),
             'role' => 'kepala sekolah',
         ]);
-        User::factory(10)->hasGuru()->create();
-        User::factory(10)->hasSiswa()->create();
-        Kriteria::factory(10)->create();
+        $this->call(KelasSeeder::class);
+        User::factory(2)->hasSiswa()->create();
+        User::factory(5)->hasGuru()->create();
+        Kriteria::factory(5)->create();
+        $getKriteria = Kriteria::all();
+        $totalBobot = $getKriteria->sum('bobot_kriteria');
+        foreach ($getKriteria as $item) {
+            $item->update([
+                'fuzzy' => $item->bobot_kriteria / $totalBobot
+            ]);
+        }
     }
 }

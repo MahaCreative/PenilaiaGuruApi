@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('periode_id')->constrained('periodes')->onDelete('cascade');
             $table->foreignId('guru_id')->constrained('gurus')->onDelete('cascade');
             $table->float('nilai_akhir');
-            $table->integer('rangking');
+            $table->integer('jumlah_siswa_menilai');
             $table->timestamps();
         });
     }

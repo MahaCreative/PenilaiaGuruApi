@@ -38,6 +38,6 @@ class LoginController extends Controller
     public function destroy(Request $request)
     {
         $request->user()->tokens()->where('id', $request->user()->currentAccessToken()->id)->delete();
-        return 'oke';
+        return response()->json(['message' => 'Logout Berhasil']);
     }
 }

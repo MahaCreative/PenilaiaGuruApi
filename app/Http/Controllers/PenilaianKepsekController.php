@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailPenilaianKepsek;
+use App\Models\DetailPenilaianSiswa;
 use App\Models\Guru;
 use App\Models\HasilPenilaianKepsek;
+use App\Models\HasilPenilaianSiswa;
 use App\Models\Kriteria;
 use App\Models\NormalisasiPenilaianKepsek;
 use App\Models\PenilaianKepsek;
+use App\Models\PenilaianSiswa;
 use App\Models\Periode;
+use App\Models\RankingTotal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -97,7 +101,7 @@ class PenilaianKepsekController extends Controller
 
                 foreach ($detailPenilaian as $item) {
                     NormalisasiPenilaianKepsek::create([
-                        'detail_penilaian_kepsek_id' => $item->id,
+
                         'periode_id' => $id,
                         'kriteria_id' => $item->kriteria_id,
                         'guru_id' => $item->guru_id,
@@ -181,5 +185,65 @@ class PenilaianKepsekController extends Controller
             ->orderBy('nilai_akhir', 'desc')
             ->latest()->get();
         return response()->json(['normalisasi' => $normalisasi, 'hasilAkhir' => $hasilAkhir]);
+    }
+
+    public function history_penilaian_siswa(Request $request, $id)
+    {
+        $penilaianSiswa = PenilaianSiswa::where('periode_id', $id)->first();
+        if (!$penilaianSiswa) {
+            throw ValidationException::withMessages(["message" => "Belum ada penilaian yang diberikan oleh siswa"]);
+        }
+        $query = DetailPenilaianSiswa::query()->with(['penilaian_siswa' => function ($q) {
+            $q->with('periode');
+        }, 'kriteria', 'guru', 'user'])->where('penilaian_siswa_id', '=', $penilaianSiswa->id);
+        if ($request->nama_siswa) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->nama_siswa . '%');
+            });
+        }
+        if ($request->nama_guru) {
+            $query->whereHas('guru', function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->nama_guru . '%');
+            });
+        }
+        $detailPenilaian = $query->latest()->get();
+        return $detailPenilaian;
+    }
+
+    public function selesaikan_penilaian(Request $request, $id)
+    {
+        $periode = Periode::find($id);
+        $periode->status = 'selesai';
+        $periode->save();
+
+        $guru = Guru::latest()->get();
+        $nilaiKepsek = 0;
+        $nilaiSiswa = 0;
+        $nilaiAkhir = 0;
+        foreach ($guru as $item) {
+            $cekHasilKepsek = HasilPenilaianKepsek::where('periode_id', $id)
+                ->where('guru_id', $item->id)->first();
+            $cekHasilSiswa = HasilPenilaianSiswa::where('periode_id', $id)
+                ->where('guru_id', $item->id)->first();
+            if ($cekHasilKepsek) {
+                $nilaiKepsek = $cekHasilKepsek->nilai_akhir;
+            } else {
+                $nilaiKepsek = 0;
+            }
+            if ($cekHasilSiswa) {
+                $nilaiSiswa = $cekHasilSiswa->nilai_akhir;
+            } else {
+                $nilaiSiswa = 0;
+            }
+            $nilaiAkhir = ($nilaiKepsek + $nilaiSiswa) / 2;
+            RankingTotal::create([
+
+                'periode_id' => $id,
+                'guru_id' => $item->id,
+                'nilai_kepsek' => $nilaiAkhir,
+                'nilai_siswa' => $nilaiSiswa,
+                'skor_akhir' => $nilaiAkhir,
+            ]);
+        }
     }
 }

@@ -14,4 +14,13 @@ class Kriteria extends Model
         'bobot_kriteria',
         'type'
     ];
+
+    public function detail_penilaian_siswa()
+    {
+        return $this->hasMany(DetailPenilaianSiswa::class);
+    }
+    public function detail_penilaian_kepsek()
+    {
+        return $this->hasMany(DetailPenilaianKepsek::class);
+    }
 }

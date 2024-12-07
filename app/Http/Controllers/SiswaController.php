@@ -42,7 +42,7 @@ class SiswaController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'nis' => 'required|numeric|min:6|unique:siswas,nis',
+            'nis' => 'required|numeric|digits:6|unique:siswas,nis',
             'nama' => 'required|string|min:4|max:60',
             'alamat' => 'required|min:6|max:50|string',
             'jenis_kelamin' => 'required',

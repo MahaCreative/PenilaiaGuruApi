@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('detail_penilaian_siswas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('penilaian_kepsek_id')->constrained('penilaian_kepseks')->onDelete('cascade');
+            $table->foreignId('penilaian_siswa_id')->constrained('penilaian_siswas')->onDelete('cascade');
             $table->foreignId('kriteria_id')->constrained('kriterias')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('guru_id')->constrained('gurus')->onDelete('cascade');
             $table->float('nilai')->default(1);
             $table->date('tanggal_penilaian');

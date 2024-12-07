@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\LaporanPenilaianKepsek;
+use App\Http\Controllers\LaporanPenilaianSiswa;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('lapora-history-penilaian-kepsek', [LaporanPenilaianKepsek::class, 'index']);
+
+Route::get('lapora-history-penilaian-siswa/{id}', [LaporanPenilaianSiswa::class, 'history_penilaian']);

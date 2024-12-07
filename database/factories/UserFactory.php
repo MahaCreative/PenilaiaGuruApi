@@ -27,7 +27,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'nip' => rand(111111, 99999999),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => bcrypt('password'),
             'remember_token' => Str::random(10),
         ];
     }
