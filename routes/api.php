@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataKelasController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\GuruHistory;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PenilaianKepsekController;
@@ -72,4 +74,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('history-penilaian-siswa/{id}', [PenilaianSiswaController::class, 'history_penilaian']);
     Route::post('proses-penilaian-siswa/{id}', [PenilaianSiswaController::class, 'proses_penilaian']);
     Route::get('rangking-sementara-penilaian-siswa', [PenilaianSiswaController::class, 'rangking_sementara']);
+
+    Route::get('guru/history-penilaian-siswa/{id}', [GuruHistory::class, 'history_penilaian_siswa']);
+    Route::get('guru/history-penilaian-kepsek/{id}', [GuruHistory::class, 'history_penilaian_kepsek']);
+    Route::get('guru/ranking-kepsek/', [GuruHistory::class, 'ranking_kepsek']);
+
+    Route::get('dashboard', [DashboardController::class, 'index']);
 });

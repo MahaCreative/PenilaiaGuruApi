@@ -16,6 +16,7 @@ class LaporanPenilaianSiswa extends Controller
 {
     public function history_penilaian(Request $request, $id)
     {
+
         $periode = Periode::findOrFail($id);
         $showData = $request->showData;
         if ($request->showData == 'siswa') {
@@ -36,16 +37,22 @@ class LaporanPenilaianSiswa extends Controller
             $data = Guru::with([
                 'detail_penilaian_siswa' => function ($q) use ($request) {
                     if ($request->orderBy == 'kriteria_id') {
-                        $q->with('user', 'kriteria');
+                        $q->with('penilaian_siswa', 'user', 'kriteria');
                     }
                 }
-            ])->get();
+            ])
+                ->whereHas('detail_penilaian_siswa.penilaian_siswa', function ($q) use ($id) {
+                    $q->where('periode_id', '=', $id);
+                })->get();
         }
         if ($request->showData == 'kriteria') {
             $data = Kriteria::with(['detail_penilaian_siswa' => function ($q) use ($request) {
 
                 $q->with('user', 'guru');
-            }])->get();
+            }])
+                ->whereHas('detail_penilaian_siswa.penilaian_siswa', function ($q) use ($id) {
+                    $q->where('periode_id', '=', $id);
+                })->get();
         }
         // return $data;
 
@@ -54,6 +61,6 @@ class LaporanPenilaianSiswa extends Controller
         $pdf = Pdf::loadView('Report.HistoryPenilaianSiswa', compact('data', 'periode', 'imagePath', 'showData')); // Load tampilan yang ingin dicetak
         $pdf->setPaper('legal', 'landscape'); // Set ukuran kertas dan orientasi
 
-        return $pdf->stream('invoice.pdf');
+        return $pdf->download('invoice.pdf');
     }
 }

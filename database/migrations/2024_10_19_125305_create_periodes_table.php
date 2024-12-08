@@ -17,6 +17,15 @@ return new class extends Migration
             $table->string('tahun');
             $table->date('tanggal_mulai');
             $table->date('tanggal_berakhir');
+            // GUNAKAN NANTI INI
+            $table->string('rangking_1')->nullable();
+            $table->float('skor_1')->nullable();
+
+            $table->string('rangking_2')->nullable();
+            $table->float('skor_2')->nullable();
+
+            $table->string('rangking_3')->nullable();
+            $table->float('skor_3')->nullable();
             $table->string('status')->default('berlangsung');
             $table->timestamps();
         });

@@ -52,6 +52,7 @@ class GuruController extends Controller
             'nip' => $request->nip,
             'name'  => $request->nama,
             'password' => bcrypt($request->password),
+            'role' => 'guru',
         ]);
         $guru = Guru::create([
             'user_id' => $user->id,

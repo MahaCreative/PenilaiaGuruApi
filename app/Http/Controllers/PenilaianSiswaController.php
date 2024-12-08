@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailPenilaianSiswa;
 use App\Models\Guru;
+use App\Models\HasilPenilaianKepsek;
 use App\Models\HasilPenilaianSiswa;
 use App\Models\Kriteria;
 use App\Models\NormalisasiPenilaianSiswa;
 use App\Models\PenilaianSiswa;
 use App\Models\Periode;
+use App\Models\RankingTotal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -33,7 +35,6 @@ class PenilaianSiswaController extends Controller
             $cekPenilaian = PenilaianSiswa::create([
                 "periode_id" => $getPeriode->id,
                 "user_id" => $request->user()->id,
-
             ]);
             $idPenilaian = $cekPenilaian->id;
         } else {
@@ -55,26 +56,32 @@ class PenilaianSiswaController extends Controller
             'guru_id' => 'required|numeric',
             'nilai.*' => 'required|numeric|min:1|max:5'
         ]);
+        $cekPenilaian = PenilaianSiswa::where('periode_id', '=', $id)
+            ->where('user_id', '=', $request->user()->id)
+            ->first();
+
         for ($i = 0; $i < count($request->id_kriteria); $i++) {
             $detailPenilaian = DetailPenilaianSiswa::create([
                 'user_id' => $request->user()->id,
-                'penilaian_siswa_id' => $id,
+                'penilaian_siswa_id' => $cekPenilaian->id,
                 'kriteria_id' => $request->id_kriteria[$i],
                 'guru_id' => $request->guru_id,
                 'nilai' => $request->nilai[$i],
                 'tanggal_penilaian' => now(),
             ]);
         }
-        $penilaianSiswa = PenilaianSiswa::findOrFail($id);
+        $penilaianSiswa = PenilaianSiswa::findOrFail($cekPenilaian->id);
         $penilaianSiswa->update(['jumlah_guru_dinilain' => $penilaianSiswa->jumlah_guru_dinilain + 1]);
         return response()->json(['message' => 'Berhasil menambahkan penilaian']);
     }
 
     public function history_penilaian(Request $request, $id)
     {
+
         $penilaianSiswa = PenilaianSiswa::where('periode_id', $id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', '=', $request->user()->id)
             ->first();
+
         $detailPenilaian = DetailPenilaianSiswa::with(['penilaian_siswa' => function ($q) {
             $q->with('periode');
         }, 'kriteria', 'guru'])->where('penilaian_siswa_id', '=', $penilaianSiswa->id)
@@ -132,8 +139,59 @@ class PenilaianSiswaController extends Controller
                     }
                 }
             }
+
+            $this->hitungSkorAkhir($id);
+            $guru = Guru::latest()->get();
+            $nilaiKepsek = 0;
+            $nilaiSiswa = 0;
+            $nilaiAkhir = 0;
+            foreach ($guru as $item) {
+                $cekHasilKepsek = HasilPenilaianKepsek::where(
+                    'periode_id',
+                    $id
+                )
+                    ->where('guru_id', $item->id)->first();
+                $cekHasilSiswa = HasilPenilaianSiswa::where('periode_id', $id)
+                    ->where('guru_id', $item->id)->first();
+                if ($cekHasilKepsek) {
+                    $nilaiKepsek = $cekHasilKepsek->nilai_akhir;
+                } else {
+                    $nilaiKepsek = 0;
+                }
+                if ($cekHasilSiswa) {
+                    $nilaiSiswa = $cekHasilSiswa->nilai_akhir;
+                } else {
+                    $nilaiSiswa = 0;
+                }
+                $nilaiAkhir = ($nilaiKepsek + $nilaiSiswa);
+                RankingTotal::updateOrCreate(['periode_id' => $id, 'guru_id' => $item->id,], [
+                    'rank' => '1',
+
+                    'nilai_kepsek' => $nilaiKepsek,
+                    'nilai_siswa' => $nilaiSiswa,
+                    'skor_akhir' => $nilaiAkhir,
+                ]);
+            }
+
+            $top3Results = RankingTotal::with('guru')
+                ->where('periode_id', '=', $id)
+                ->orderBy('skor_akhir', 'desc')
+                ->take(3)
+                ->get();
+
+            $periode = Periode::where('id', '=', $id)->first();
+
+            if ($periode && $top3Results->count() > 0) {
+
+                $periode->rangking_1 = $top3Results[0]->guru->nip ?? null;
+                $periode->skor_1 = $top3Results[0]->skor_akhir ?? null;
+                $periode->rangking_2 = $top3Results[1]->guru->nip ?? null;
+                $periode->skor_2 = $top3Results[1]->skor_akhir ?? null;
+                $periode->rangking_3 = $top3Results[2]->guru->nip ?? null;
+                $periode->skor_3 = $top3Results[2]->skor_akhir ?? null;
+                $periode->save();
+            }
             DB::commit();
-            return $this->hitungSkorAkhir($id);
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -172,7 +230,6 @@ class PenilaianSiswaController extends Controller
                 'jumlah_siswa_menilai' => $item->total_user_per_guru,
             ]);
             // Menghitung rata-rata normalisasi dengan total user yang seharusnya menilai semua guru
-            echo $data;
         }
         // Array untuk menyimpan total nilai per guru dan jumlah siswa yang menilai per guru
 

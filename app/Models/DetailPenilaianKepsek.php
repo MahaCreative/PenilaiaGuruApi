@@ -11,7 +11,7 @@ class DetailPenilaianKepsek extends Model
     protected $guarded = [];
     public function penilaian_kepesek()
     {
-        return $this->belongsTo(PenilaianKepsek::class, 'penilaian_kepsek_id');
+        return $this->belongsTo(PenilaianKepsek::class,  'penilaian_kepsek_id');
     }
 
     public function kriteria()
@@ -21,5 +21,9 @@ class DetailPenilaianKepsek extends Model
     public function guru()
     {
         return $this->belongsTo(Guru::class);
+    }
+    public function periode()
+    {
+        return $this->belongsTo(Periode::class);
     }
 }

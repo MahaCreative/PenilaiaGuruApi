@@ -20,7 +20,7 @@ class KriteriaFactory extends Factory
             'kd_penilaian' => rand(111, 999999),
             'nama_kriteria' => fake()->sentence(3),
             'bobot_kriteria' => fake()->randomElement([10, 20, 30, 40, 50]),
-            'type' => 'siswa',
+            'type' => fake()->randomElement(['siswa', 'kepsek']),
         ];
     }
 }

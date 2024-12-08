@@ -26,4 +26,8 @@ class Guru extends Model
     {
         return $this->hasMany(DetailPenilaianSiswa::class);
     }
+    public function detail_penilaian_kepsek()
+    {
+        return $this->hasMany(DetailPenilaianKepsek::class);
+    }
 }

@@ -65,10 +65,13 @@ class PenilaianKepsekController extends Controller
             'guru_id' => 'required|numeric',
             'nilai.*' => 'required|numeric|min:1|max:5'
         ]);
+        $getPenilaianKepsek = PenilaianKepsek::where('user_id', $request->user()->id)
+            ->where('periode_id', $id)
+            ->first();
         for ($i = 0; $i < count($request->id_kriteria); $i++) {
             $detailPenilaian = DetailPenilaianKepsek::create([
                 'user_id' => $request->user()->id,
-                'penilaian_kepsek_id' => $id,
+                'penilaian_kepsek_id' => $getPenilaianKepsek->id,
                 'kriteria_id' => $request->id_kriteria[$i],
                 'guru_id' => $request->guru_id,
                 'nilai' => $request->nilai[$i],
@@ -101,7 +104,7 @@ class PenilaianKepsekController extends Controller
 
                 foreach ($detailPenilaian as $item) {
                     NormalisasiPenilaianKepsek::create([
-
+                        'detail_penilaian_kepsek_id' => $item->id,
                         'periode_id' => $id,
                         'kriteria_id' => $item->kriteria_id,
                         'guru_id' => $item->guru_id,
@@ -138,23 +141,60 @@ class PenilaianKepsekController extends Controller
                 ]);
             }
 
-            // Update data periode dengan top 3 ranking
-            $top3Results = HasilPenilaianKepsek::with('guru')->where('periode_id', $id)
-                ->orderBy('nilai_akhir', 'desc')
+
+            $guru = Guru::latest()->get();
+            $nilaiKepsek = 0;
+            $nilaiSiswa = 0;
+            $nilaiAkhir = 0;
+            foreach ($guru as $item) {
+                $cekHasilKepsek = HasilPenilaianKepsek::where(
+                    'periode_id',
+                    $id
+                )
+                    ->where('guru_id', $item->id)->first();
+                $cekHasilSiswa = HasilPenilaianSiswa::where('periode_id', $id)
+                    ->where('guru_id', $item->id)->first();
+                if ($cekHasilKepsek) {
+                    $nilaiKepsek = $cekHasilKepsek->nilai_akhir;
+                } else {
+                    $nilaiKepsek = 0;
+                }
+                if ($cekHasilSiswa) {
+                    $nilaiSiswa = $cekHasilSiswa->nilai_akhir;
+                } else {
+                    $nilaiSiswa = 0;
+                }
+                $nilaiAkhir = ($nilaiKepsek + $nilaiSiswa);
+                RankingTotal::updateOrCreate(['periode_id' => $id, 'guru_id' => $item->id,], [
+                    'rank' => '1',
+
+                    'nilai_kepsek' => $nilaiKepsek,
+                    'nilai_siswa' => $nilaiSiswa,
+                    'skor_akhir' => $nilaiAkhir,
+                ]);
+            }
+
+            $top3Results = RankingTotal::with('guru')
+                ->where('periode_id', '=', $id)
+                ->orderBy('skor_akhir', 'desc')
                 ->take(3)
                 ->get();
 
-            $periode = PenilaianKepsek::where('periode_id', '=', $id)->first();
+            foreach ($top3Results as $rank => $item) {
+                $item->rank = $rank + 1;
+                $item->save();
+            }
+            $periode = Periode::where('id', '=', $id)->first();
 
             if ($periode && $top3Results->count() > 0) {
-                $periode->update([
-                    'rangking_1' => $top3Results[0]->guru->nip ?? null,
-                    'skor_1' => $top3Results[0]->nilai_akhir ?? null,
-                    'rangking_2' => $top3Results[1]->guru->nip ?? null,
-                    'skor_2' => $top3Results[1]->nilai_akhir ?? null,
-                    'rangking_3' => $top3Results[2]->guru->nip ?? null,
-                    'skor_3' => $top3Results[2]->nilai_akhir ?? null,
-                ]);
+
+                $periode->rangking_1 = $top3Results[0]->guru->nip ?? null;
+                $periode->skor_1 = $top3Results[0]->skor_akhir ?? null;
+                $periode->rangking_2 = $top3Results[1]->guru->nip ?? null;
+                $periode->skor_2 = $top3Results[1]->skor_akhir ?? null;
+                $periode->rangking_3 = $top3Results[2]->guru->nip ?? null;
+                $periode->skor_3 = $top3Results[2]->skor_akhir ?? null;
+                $periode->save();
             }
 
             DB::commit();
@@ -215,13 +255,15 @@ class PenilaianKepsekController extends Controller
         $periode = Periode::find($id);
         $periode->status = 'selesai';
         $periode->save();
-
         $guru = Guru::latest()->get();
         $nilaiKepsek = 0;
         $nilaiSiswa = 0;
         $nilaiAkhir = 0;
         foreach ($guru as $item) {
-            $cekHasilKepsek = HasilPenilaianKepsek::where('periode_id', $id)
+            $cekHasilKepsek = HasilPenilaianKepsek::where(
+                'periode_id',
+                $id
+            )
                 ->where('guru_id', $item->id)->first();
             $cekHasilSiswa = HasilPenilaianSiswa::where('periode_id', $id)
                 ->where('guru_id', $item->id)->first();
@@ -235,15 +277,36 @@ class PenilaianKepsekController extends Controller
             } else {
                 $nilaiSiswa = 0;
             }
-            $nilaiAkhir = ($nilaiKepsek + $nilaiSiswa) / 2;
-            RankingTotal::create([
+            $nilaiAkhir = ($nilaiKepsek + $nilaiSiswa);
+            RankingTotal::updateOrCreate(['periode_id' => $id, 'guru_id' => $item->id,], [
+                'rank' => '1',
 
-                'periode_id' => $id,
-                'guru_id' => $item->id,
-                'nilai_kepsek' => $nilaiAkhir,
+                'nilai_kepsek' => $nilaiKepsek,
                 'nilai_siswa' => $nilaiSiswa,
                 'skor_akhir' => $nilaiAkhir,
             ]);
+        }
+
+        $top3Results = RankingTotal::with('guru')
+            ->where('periode_id', '=', $id)
+            ->orderBy('skor_akhir', 'desc')
+            ->take(3)
+            ->get();
+        foreach ($top3Results as $rank => $item) {
+            $item->rank = $rank + 1;
+            $item->save();
+        }
+
+
+        if ($periode && $top3Results->count() > 0) {
+
+            $periode->rangking_1 = $top3Results[0]->guru->nip ?? null;
+            $periode->skor_1 = $top3Results[0]->skor_akhir ?? null;
+            $periode->rangking_2 = $top3Results[1]->guru->nip ?? null;
+            $periode->skor_2 = $top3Results[1]->skor_akhir ?? null;
+            $periode->rangking_3 = $top3Results[2]->guru->nip ?? null;
+            $periode->skor_3 = $top3Results[2]->skor_akhir ?? null;
+            $periode->save();
         }
     }
 }

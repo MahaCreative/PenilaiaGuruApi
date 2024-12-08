@@ -18,4 +18,9 @@ class NormalisasiPenilaianKepsek extends Model
     {
         return $this->belongsTo(Kriteria::class);
     }
+
+    public function detail_penilaian_kepsek()
+    {
+        return $this->belongsTo(DetailPenilaianKepsek::class);
+    }
 }

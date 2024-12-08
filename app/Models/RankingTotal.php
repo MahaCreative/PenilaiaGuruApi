@@ -9,4 +9,13 @@ class RankingTotal extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class);
+    }
+    public function periode()
+    {
+        return $this->belongsTo(Periode::class);
+    }
 }

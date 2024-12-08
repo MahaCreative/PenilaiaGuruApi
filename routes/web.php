@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LaporanPenilaianGuru;
 use App\Http\Controllers\LaporanPenilaianKepsek;
 use App\Http\Controllers\LaporanPenilaianSiswa;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,8 @@ Route::get('/', function () {
 });
 
 
-Route::get('lapora-history-penilaian-kepsek', [LaporanPenilaianKepsek::class, 'index']);
+Route::get('lapora-history-penilaian-kepsek/{id}', [LaporanPenilaianKepsek::class, 'history_penilaian']);
 
 Route::get('lapora-history-penilaian-siswa/{id}', [LaporanPenilaianSiswa::class, 'history_penilaian']);
+
+Route::get('laporan-penilaian-guru/{id}', [LaporanPenilaianGuru::class, 'index']);

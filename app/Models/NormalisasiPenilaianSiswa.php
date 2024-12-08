@@ -18,4 +18,8 @@ class NormalisasiPenilaianSiswa extends Model
     {
         return $this->belongsTo(Kriteria::class);
     }
+    public function detail_penilaian_siswa()
+    {
+        return $this->belongsTo(DetailPenilaianSiswa::class);
+    }
 }

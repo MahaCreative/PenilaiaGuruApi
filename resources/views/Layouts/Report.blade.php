@@ -4,8 +4,14 @@
     <title>Invoice</title>
 
     <style>
+        body {
+            padding: 2%;
+        }
+
         .container {
             padding: 3pt;
+            width: 794px;
+            height: 1123px;
         }
 
         .header {
@@ -100,6 +106,7 @@
             padding: 0.5rem;
             text-align: left;
             text-transform: capitalize;
+            font-size: 10pt;
         }
 
         .table-container th {
@@ -114,8 +121,6 @@
 </head>
 
 <body class='bg-blue-500'>
-
-
     <div class="container">
         <div class="header">
             <img src="http://127.0.0.1:8000/alchaeriyah.png" alt="">
@@ -127,11 +132,16 @@
             </div>
         </div>
         <div class="details">
-            <p>Laporan Peniaian Oleh : Siswa</p>
+            @yield('jenis_laporan')
             <p>Laporan Tanggal : {{ now()->format('D, d-M-Y') }}</p>
         </div>
         <div class="details">
-            <p>Periode Penilaian :{{ $periode->bulan . '-' . $periode->tahun }}</p>
+            @if ($periode)
+                <p>Periode Penilaian :{{ $periode->bulan . '-' . $periode->tahun }}</p>
+                <p style="font-transform: capitalize;">Status Periode : {{ $periode->status }}</p>
+            @else
+                <p>Semua Periode Penilaian</p>
+            @endif
         </div>
         @yield('content')
 

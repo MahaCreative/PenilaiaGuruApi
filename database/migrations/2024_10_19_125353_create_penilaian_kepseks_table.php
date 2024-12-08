@@ -16,15 +16,15 @@ return new class extends Migration
             $table->foreignId('periode_id')->constrained('periodes')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->integer('jumlah_guru_dinilain')->default(0);
+            // HAPUS NANTI INI
+            // $table->string('rangking_1')->nullable();
+            // $table->float('skor_1')->nullable();
 
-            $table->string('rangking_1')->nullable();
-            $table->float('skor_1')->nullable();
+            // $table->string('rangking_2')->nullable();
+            // $table->float('skor_2')->nullable();
 
-            $table->string('rangking_2')->nullable();
-            $table->float('skor_2')->nullable();
-
-            $table->string('rangking_3')->nullable();
-            $table->float('skor_3')->nullable();
+            // $table->string('rangking_3')->nullable();
+            // $table->float('skor_3')->nullable();
             $table->timestamps();
         });
     }

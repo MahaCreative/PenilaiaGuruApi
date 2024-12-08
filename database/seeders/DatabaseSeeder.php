@@ -28,8 +28,16 @@ class DatabaseSeeder extends Seeder
         $this->call(KelasSeeder::class);
         User::factory(2)->hasSiswa()->create();
         User::factory(5)->hasGuru()->create();
-        Kriteria::factory(5)->create();
-        $getKriteria = Kriteria::all();
+        Kriteria::factory(10)->create();
+        $getKriteria = Kriteria::where('type', 'siswa')->get();
+        $totalBobot = $getKriteria->sum('bobot_kriteria');
+        foreach ($getKriteria as $item) {
+            $item->update([
+                'fuzzy' => $item->bobot_kriteria / $totalBobot
+            ]);
+        }
+
+        $getKriteria = Kriteria::where('type', 'kepsek')->get();
         $totalBobot = $getKriteria->sum('bobot_kriteria');
         foreach ($getKriteria as $item) {
             $item->update([
