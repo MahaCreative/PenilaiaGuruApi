@@ -35,7 +35,7 @@ class LaporanPenilaianGuru extends Controller
 
 
 
-        $pdf = Pdf::loadView('Report.HistoryPenilaianKepsek', compact(
+        $pdf = Pdf::loadView('Report.ReportAll', compact(
             'periode',
             'rankTotal',
             'hasilRankSiswa',
