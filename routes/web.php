@@ -19,10 +19,3 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
-
-Route::get('lapora-history-penilaian-kepsek/{id}', [LaporanPenilaianKepsek::class, 'history_penilaian']);
-
-Route::get('lapora-history-penilaian-siswa/{id}', [LaporanPenilaianSiswa::class, 'history_penilaian']);
-
-Route::get('laporan-penilaian-guru/{id}', [LaporanPenilaianGuru::class, 'index']);

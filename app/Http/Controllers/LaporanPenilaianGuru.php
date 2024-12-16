@@ -12,6 +12,7 @@ use App\Models\PenilaianKepsek;
 use App\Models\PenilaianSiswa;
 use App\Models\Periode;
 use App\Models\RankingTotal;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class LaporanPenilaianGuru extends Controller
@@ -32,7 +33,9 @@ class LaporanPenilaianGuru extends Controller
         $normalisasiSiswa = NormalisasiPenilaianSiswa::with('detail_penilaian_siswa', 'kriteria', 'guru')->where('periode_id', $id)->get();
         $normalisasiKepsek = NormalisasiPenilaianKepsek::with('detail_penilaian_kepsek', 'kriteria', 'guru')->where('periode_id', $id)->get();
 
-        return view('Report.ReportAll', compact(
+
+
+        $pdf = Pdf::loadView('Report.HistoryPenilaianKepsek', compact(
             'periode',
             'rankTotal',
             'hasilRankSiswa',
@@ -40,13 +43,9 @@ class LaporanPenilaianGuru extends Controller
             'normalisasiKepsek',
             'normalisasiSiswa',
 
-        ));
-        return compact(
-            'rankTotal',
-            'hasilRankSiswa',
-            'hasilRanKepsek',
-            'normalisasiSiswa',
-            'normalisasiKepsek',
-        );
+        )); // Load tampilan yang ingin dicetak
+        $pdf->setPaper('legal', 'landscape'); // Set ukuran kertas dan orientasi
+
+        return $pdf->stream("laporan-penilaian-guru-periosde-$periode->bulan-$periode->tahun.pdf");
     }
 }
