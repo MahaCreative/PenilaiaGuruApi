@@ -5,6 +5,9 @@ use App\Http\Controllers\DataKelasController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\GuruHistory;
 use App\Http\Controllers\KriteriaController;
+use App\Http\Controllers\LaporanPenilaianGuru;
+use App\Http\Controllers\LaporanPenilaianKepsek;
+use App\Http\Controllers\LaporanPenilaianSiswa;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PenilaianKepsekController;
 use App\Http\Controllers\PenilaianSiswaController;
@@ -28,6 +31,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [LoginController::class, 'store']);
 
 Route::post('delete-guru/{nip}', [GuruController::class, 'delete']);
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -80,4 +84,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('guru/ranking-kepsek/', [GuruHistory::class, 'ranking_kepsek']);
 
     Route::get('dashboard', [DashboardController::class, 'index']);
+
+    Route::get('lapora-history-penilaian-kepsek/{id}', [LaporanPenilaianKepsek::class, 'history_penilaian']);
+
+    Route::get('lapora-history-penilaian-siswa/{id}', [LaporanPenilaianSiswa::class, 'history_penilaian']);
+
+    Route::get('laporan-penilaian-guru/{id}', [LaporanPenilaianGuru::class, 'index']);
 });
