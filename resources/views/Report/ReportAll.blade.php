@@ -1,4 +1,4 @@
-@extends('Layouts.report')
+@extends('Layouts.Report')
 @section('jenis_laporan')
     <p>Laporan Penilaian Guru</p>
 @endsection
